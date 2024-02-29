@@ -1,4 +1,4 @@
-# AnimalTrreeProject
+# AnimalTree
 Simple project with tree as view
 
 #### List of url:
