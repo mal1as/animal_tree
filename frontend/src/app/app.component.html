@@ -1,0 +1,74 @@
+<div class="mat-elevation-z8 p-3 container main-content">
+    <h1 class="text-center">Animal tree</h1>
+    <div class="rounded bg-light m-3 text-center">
+        <h4>Panel for editing tree</h4>
+        <div *ngIf="selectedNode">
+            <span class="mr-5">Node name - {{!isNodeRoot(selectedNode) ? selectedNode.name : rootTitle}}</span>
+            <span *ngIf="isNodeHasKindsOfSpecies(selectedNode)">Number of species - {{selectedNode.numberOfKinds}}</span>
+        </div>
+        <div>
+            <button mat-raised-button (click)="onAddClick()" class="mx-4 my-2" color="primary"
+                    [disabled]="!selectedNode || isNodeCantHasChild(selectedNode)">
+                Add child
+            </button>
+            <button mat-raised-button (click)="onEditClick()" class="mx-4 my-2" color="accent"
+                    [disabled]="!selectedNode || isNodeRoot(selectedNode)">
+                Edit node
+            </button>
+            <button mat-raised-button (click)="onDeleteClick()" class="mx-4 my-2" color="warn"
+                    [disabled]="!selectedNode || isNodeRoot(selectedNode)">
+                Delete node
+            </button>
+        </div>
+        <div *ngIf="isAddAction() || isEditAction()">
+            <form [formGroup]="actionForm">
+
+                <div>
+                    <mat-form-field>
+                        <mat-label>Name</mat-label>
+                        <input formControlName="name" name="name" matInput [(ngModel)]="actionNode.name">
+                    </mat-form-field>
+                    <div class="p-message-error text-danger mb-3" *ngIf="fieldErrors('name')">
+                        <span *ngIf="fieldErrors('name').required">Name is required</span>
+                        <span *ngIf="fieldErrors('name').minlength || fieldErrors('name').maxlength">Name length must be in [3..20]</span>
+                    </div>
+                </div>
+
+                <div>
+                    <mat-form-field *ngIf="isActionNodeWithNumber()">
+                        <mat-label>Number of kinds</mat-label>
+                        <input type="number" formControlName="numberOfKinds" name="numberOfKinds" matInput
+                               [(ngModel)]="actionNode.numberOfKinds">
+                    </mat-form-field>
+                    <div class="p-message-error text-danger mb-3" *ngIf="fieldErrors('numberOfKinds')">
+                        <span *ngIf="fieldErrors('numberOfKinds').required">Number of kinds is required</span>
+                        <span *ngIf="fieldErrors('numberOfKinds').min">Number of kinds must be bigger than 0</span>
+                    </div>
+                </div>
+
+            </form>
+            <div>
+                <button mat-button class="btn-success" [disabled]="hasFormErrors() && !isNumberFieldDisabledAndNameIsOk()"
+                        (click)="isAddAction() ? onFormAddClick() : onFormEditClick()">{{isAddAction() ? 'Add' : 'Edit'}}</button>
+                <button mat-button class="btn-danger" (click)="onCancelClick()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="tree">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <button *ngIf="node.expandable" class="bg-warning" mat-icon-button matTreeNodeToggle
+                    [attr.aria-label]="'Toggle ' + node.name">
+                <mat-icon class="mat-icon-rtl-mirror">
+                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+            </button>
+            <button *ngIf="!node.expandable" mat-icon-button disabled></button>
+            <span class="ml-2 p-2 node" [ngClass]="{'selected-node': selectedNode === node}"
+                  (click)="onNodeClick(node)">
+                    {{node.name ? node.name : rootTitle}} {{node.numberOfKinds ? node.numberOfKinds : ""}}
+            </span>
+        </mat-tree-node>
+    </mat-tree>
+
+</div>
